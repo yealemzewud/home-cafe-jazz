@@ -1,77 +1,161 @@
-const platter = document.getElementById('platter');
-const toneArm = document.getElementById('tone-arm');
-const moodText = document.querySelector('.mood-text');
-const activeLabel = document.getElementById('vinyl-label');
-const sleeves = document.querySelectorAll('.record-sleeve');
+// SELECTORS
+const trackTitleDisplay = document.getElementById('track-title');
+const navButtons = document.querySelectorAll('.nav-btn');
+const mainBackground = document.getElementById('main-background');
+const yearDropdown = document.getElementById('year-dropdown');
 
+if (yearDropdown) {
+    for (let y = 1940; y <= 2026; y++) {
+        let opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yearDropdown.appendChild(opt);
+    }
+}
+const playPauseBtn = document.getElementById('play-pause-btn');
+const playIcon = document.getElementById('play-icon');
+const pauseIcon = document.getElementById('pause-icon');
+
+// STATE
 let isPlaying = false;
 let currentCategory = "";
+let ytPlayer;
 
-// The Playlists containing all the best music
-const playlists = {
-    "1940s": ["cb2w2m1JmCY", "TtYFnN_G0GE", "qQNV6WNQXDc", "9YH175fH2jo", "CX-Y-6kw8HU"],
-    "1950s": ["PoPL7BExSQU", "qQNV6WNQXDc", "3zrSoHgAAWo", "CX-Y-6kw8HU", "9YH175fH2jo", "cb2w2m1JmCY"],
-    "1990s": ["lP26UCnoH9s", "Nv2GgV34qIg", "CX-Y-6kw8HU", "9YH175fH2jo", "qQNV6WNQXDc"]
+// BACKGROUNDS
+const backgrounds = {
+    "morning": "./assets/images/morning.png",
+    "evening": "./assets/images/evening.png",
+    "night": "./assets/images/night.png",
+    "1940s": "https://images.unsplash.com/photo-1543783318-72e70c67531e?q=80&w=2670&auto=format&fit=crop", // Elegant night mood
+    "1950s": "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?q=80&w=2670&auto=format&fit=crop", // Classic Jazz vibe
+    "1990s": "https://images.unsplash.com/photo-1544161515-4af6ce1dbbe3?q=80&w=2673&auto=format&fit=crop", // Cozy lofi mood
+    "1940-2026": "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=2670&auto=format&fit=crop" // Modern Jazz setup
 };
 
-// 1. This function creates an <iframe> (and YouTube player) after the API code downloads.
+// PLAYLISTS
+const playlists = {
+    "morning": ["nv_2rz5BFDA", "pHwRrE14cjE", "S-dRotOi01Q", "4OItGUhpNWM", "iWuNnm-VUzY", "gxwv9CbkeCY", "u5UEJvX46rE", "zl1U9_jciOk", "0oHboHuI5ME", "Dx5qFachd3A"],
+    "evening": ["lP26UCnoH9s", "Nv2GgV34qIg", "CX-Y-6kw8HU", "9YH175fH2jo", "qQNV6WNQXDc"],
+    "night": ["cb2w2m1JmCY", "TtYFnN_G0GE", "qQNV6WNQXDc", "9YH175fH2jo", "CX-Y-6kw8HU"],
+    "1940s": ["cb2w2m1JmCY", "TtYFnN_G0GE", "qQNV6WNQXDc", "9YH175fH2jo", "CX-Y-6kw8HU"],
+    "1950s": ["PoPL7BExSQU", "qQNV6WNQXDc", "3zrSoHgAAWo", "CX-Y-6kw8HU", "9YH175fH2jo", "cb2w2m1JmCY"],
+    "1990s": ["lP26UCnoH9s", "Nv2GgV34qIg", "CX-Y-6kw8HU", "9YH175fH2jo", "qQNV6WNQXDc"],
+    "1940-2026": ["cb2w2m1JmCY", "TtYFnN_G0GE", "qQNV6WNQXDc", "9YH175fH2jo", "CX-Y-6kw8HU", "PoPL7BExSQU", "3zrSoHgAAWo", "lP26UCnoH9s", "Nv2GgV34qIg", "x8zBwbB6A3Q", "Fw9fXkXlsT8", "a2LFVWBmoic", "K2QpG72_hG4"] 
+};
+
+// YOUTUBE API
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('yt-player', {
         height: '0',
         width: '0',
         playerVars: {
             'playsinline': 1,
-            'controls': 0
+            'controls': 0,
+            'showinfo': 0,
+            'rel': 0,
+            'modestbranding': 1
         },
         events: {
+            'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
         }
     });
 }
 
-// 2. The API calls this function when the player's state changes.
+function onPlayerReady() {
+    // Start with morning jazz automatically
+    setPlaylist('morning', 'Morning Jazz');
+}
+
 function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
         isPlaying = true;
-        toneArm.classList.add('playing');
-        platter.classList.add('spinning');
-        moodText.style.opacity = 0;
-    } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
+        document.body.classList.add('is-playing');
+        if (playIcon) playIcon.style.display = 'none';
+        if (pauseIcon) pauseIcon.style.display = 'inline-block';
+    } else {
         isPlaying = false;
-        toneArm.classList.remove('playing');
-        platter.classList.remove('spinning');
+        document.body.classList.remove('is-playing');
+        if (playIcon) playIcon.style.display = 'inline-block';
+        if (pauseIcon) pauseIcon.style.display = 'none';
+    }
+
+    // Try to update track title from YT player if playing
+    if (event.data == YT.PlayerState.PLAYING) {
+        const videoData = ytPlayer.getVideoData();
+        if (videoData && videoData.title) {
+            trackTitleDisplay.innerHTML = videoData.title;
+        }
     }
 }
 
-// 3. User interaction logic for Featured CDs
-function playRecord(element) {
-    if (!ytPlayer || !ytPlayer.loadPlaylist) return; // Wait for API to load
+// NAVIGATION LOGIC
+function setPlaylist(category, displayTitle) {
+    if (!ytPlayer || !ytPlayer.loadPlaylist) return;
 
-    let category = element.getAttribute('data-category');
-    let title = element.getAttribute('data-title');
-    let color = element.style.backgroundColor || '#0a0a0a';
+    currentCategory = category;
+    trackTitleDisplay.innerHTML = `Loading ${displayTitle}...`;
 
-    // Visual Logic: "Put the record on"
-    platter.classList.add('has-record');
-    activeLabel.style.backgroundColor = color;
-    activeLabel.innerHTML = title;
+    // Change Background
+    if (backgrounds[category]) {
+        mainBackground.style.backgroundImage = `url('${backgrounds[category]}')`;
+    }
 
-    // Play Audio Logic
-    if (currentCategory !== category) {
-        // Load the entire array of music!
-        ytPlayer.loadPlaylist(playlists[category]);
-        currentCategory = category;
-    } else {
-        // Clicking the same record toggles play/pause
+    // Load the playlist
+    ytPlayer.loadPlaylist(playlists[category]);
+    
+    // Update active class on buttons
+    navButtons.forEach(btn => {
+        if (btn.getAttribute('data-category') === category) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// EVENT LISTENERS
+if (playPauseBtn) {
+    playPauseBtn.addEventListener('click', () => {
+        if (!ytPlayer) return;
         if (isPlaying) {
             ytPlayer.pauseVideo();
         } else {
             ytPlayer.playVideo();
         }
-    }
+    });
 }
 
-sleeves.forEach(sleeve => {
-    sleeve.addEventListener('click', function() { playRecord(this); });
+navButtons.forEach(btn => {
+    if (btn.tagName.toLowerCase() === 'select') return;
+    btn.addEventListener('click', function() {
+        if (yearDropdown) yearDropdown.value = "";
+        const cat = this.getAttribute('data-category');
+        const display = this.getAttribute('data-display');
+        setPlaylist(cat, display);
+    });
 });
 
+if (yearDropdown) {
+    yearDropdown.addEventListener('change', function() {
+        const selectedYear = this.value;
+        if (!selectedYear) return;
+        
+        let display = selectedYear + " Mix";
+        
+        // Find matching decade or fallback
+        let categoryToPlay = selectedYear;
+        const decade = Math.floor(selectedYear / 10) * 10 + "s";
+        
+        if (!playlists[categoryToPlay]) {
+            categoryToPlay = playlists[decade] ? decade : "1940-2026";
+        }
+        
+        setPlaylist(categoryToPlay, display);
+        
+        setTimeout(() => {
+            navButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        }, 10);
+    });
+}
