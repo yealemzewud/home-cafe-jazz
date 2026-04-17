@@ -3,69 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Caffe Jazz</title>
+    <title>Home Caffe Jazz - Listening Room</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- The Wooden Cafe Table (Top-Down View) -->
-    <div id="table-surface">
-        
-        <div class="mood-text">Pick a record for tonight...</div>
+    <div id="lofi-container">
+        <!-- Fullscreen Background -->
+        <div id="main-background" style="background-image: url('./assets/images/morning.png');"></div>
+        <div id="vignette"></div>
 
-        <!-- Left side: Featured Staff Picks -->
-        <div id="featured-cds">
-            <div class="record-sleeve featured" data-category="1940s" data-title="1940s Swing" style="--rotation: -12deg; background-image: url('./assets/images/record1.png');">
-                <div class="sleeve-title" style="display: none;">1940s Swing</div>
-                <div class="sleeve-vinyl"></div>
+        <!-- Top UI Overlays -->
+        <header>
+            <div class="now-playing-container" style="display: flex; align-items: center;">
+                <button id="play-pause-btn" class="control-btn">
+                    <svg id="play-icon" style="display:inline-block;" fill="currentColor" width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pause-icon" style="display:none;" fill="currentColor" width="24" height="24" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <span class="label">Now Playing :</span>
+                <span id="track-title">Selecting mood...</span>
             </div>
-            
-            <div class="record-sleeve featured" data-category="1950s" data-title="1950s Cool Jazz" style="--rotation: 8deg; background-image: url('./assets/images/record2.png');">
-                <div class="sleeve-title" style="display: none;">1950s Cool</div>
-                <div class="sleeve-vinyl"></div>
-            </div>
-            
-            <div class="record-sleeve featured" data-category="1990s" data-title="90s Lofi Beats" style="--rotation: -4deg; background-image: url('./assets/images/record3.png');">
-                <div class="sleeve-title" style="display: none;">90s Lofi</div>
-                <div class="sleeve-vinyl"></div>
-            </div>
-        </div>
 
-        <!-- Right side: CD Cabinet Store -->
-        <div id="cab-pos">
-            <div id="cab-structure">
-                <div class="cabinet-tabs">
-                    <button class="tab-btn active" data-category="1940s">1940s</button>
-                    <button class="tab-btn" data-category="1950s">1950s</button>
-                    <button class="tab-btn" data-category="1990s">1990s</button>
+            <div class="branding">
+                <div class="audio-wave">
+                    <span></span><span></span><span></span><span></span><span></span>
                 </div>
-                <!-- Middle: Scrollable Grid -->
-                <div id="cd-grid">
-                    <!-- CDs will be injected here by Javascript -->
-                </div>
-                <!-- Bottom Highlight Glow -->
-                <div class="cabinet-glow"></div>
+                <span class="brand-name">Odelier Jazz</span>
             </div>
-        </div>
+        </header>
 
-        <!-- Center: The Turntable -->
-        <div id="turntable">
-            <div class="turntable-base">
-                <div class="knob top-left"></div>
-                <div class="platter" id="platter">
-                    <div class="spindle"></div>
-                    <div class="grooves"></div>
-                    <div class="active-label" id="vinyl-label"></div>
-                </div>
-                <div class="tone-arm-base">
-                    <div class="tone-arm" id="tone-arm"></div>
-                </div>
-            </div>
-        </div>
-
+        <nav id="playlist-nav">
+            <button class="nav-btn active" data-category="morning" data-display="Morning Jazz">Morning</button>
+            <button class="nav-btn" data-category="evening" data-display="Evening Jazz">Evening</button>
+            <button class="nav-btn" data-category="night" data-display="Night Jazz">Night</button>
+            <select id="year-dropdown" class="nav-btn">
+                <option value="" disabled selected>Pick a Year</option>
+            </select>
+        </nav>
     </div>
 
     <!-- Hidden YouTube Player -->
