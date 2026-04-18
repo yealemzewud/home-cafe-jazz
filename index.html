@@ -13,8 +13,9 @@
 
     <div id="lofi-container">
         <!-- Fullscreen Background -->
-        <div id="main-background" style="background-image: url('./assets/images/morning.png');"></div>
+        <div id="main-background" style="background-image: url('morning.png');"></div>
         <div id="vignette"></div>
+        <div id="stars-container"></div>
 
         <!-- Top UI Overlays -->
         <header>
@@ -31,18 +32,34 @@
                 <div class="audio-wave">
                     <span></span><span></span><span></span><span></span><span></span>
                 </div>
-                <span class="brand-name">Odelier Jazz</span>
+                <span class="brand-name">Home Cafe Jazz</span>
             </div>
         </header>
 
-        <nav id="playlist-nav">
-            <button class="nav-btn active" data-category="morning" data-display="Morning Jazz">Morning</button>
-            <button class="nav-btn" data-category="evening" data-display="Evening Jazz">Evening</button>
-            <button class="nav-btn" data-category="night" data-display="Night Jazz">Night</button>
-            <select id="year-dropdown" class="nav-btn">
-                <option value="" disabled selected>Pick a Year</option>
-            </select>
-        </nav>
+        <div id="bottom-controls">
+            <nav id="sub-nav-morning" class="sub-nav">
+                <span class="sub-nav-label">Morning Vibe:</span>
+                <button class="nav-btn sub-nav-btn active" data-category="morning" data-display="Morning Jazz">Default</button>
+                <button class="nav-btn sub-nav-btn" data-category="morning-coffee" data-display="Coffee Time Jazz">☕ Coffee</button>
+                <button class="nav-btn sub-nav-btn" data-category="morning-tea" data-display="Tea Jazz">🍵 Tea</button>
+            </nav>
+            
+            <nav id="playlist-nav">
+                <button class="nav-btn active" data-category="morning" data-display="Morning Jazz">Morning</button>
+                <button class="nav-btn" data-category="afternoon" data-display="Afternoon Jazz">Afternoon</button>
+                <button class="nav-btn" data-category="evening" data-display="Evening Jazz">Evening</button>
+                <button class="nav-btn" data-category="night" data-display="Night Jazz">Night</button>
+                <select id="year-dropdown" class="nav-btn">
+                    <option value="" disabled selected>Pick a Year</option>
+                </select>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Center Text Overlay -->
+    <div id="mood-text-container" class="mood-text">
+        <h1 id="mood-title"></h1>
+        <p id="mood-subtitle"></p>
     </div>
 
     <!-- Hidden YouTube Player -->
