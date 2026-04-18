@@ -1,8 +1,10 @@
-// SELECTORS
 const trackTitleDisplay = document.getElementById('track-title');
 const navButtons = document.querySelectorAll('.nav-btn');
 const mainBackground = document.getElementById('main-background');
 const yearDropdown = document.getElementById('year-dropdown');
+const moodTextContainer = document.getElementById('mood-text-container');
+const moodTitle = document.getElementById('mood-title');
+const moodSubtitle = document.getElementById('mood-subtitle');
 
 if (yearDropdown) {
     for (let y = 1940; y <= 2026; y++) {
@@ -23,18 +25,34 @@ let ytPlayer;
 
 // BACKGROUNDS
 const backgrounds = {
-    "morning": "./assets/images/morning.png",
-    "evening": "./assets/images/evening.png",
-    "night": "./assets/images/night.png",
+    "morning": "morning.png",
+    "morning-coffee": "coffee.png",
+    "morning-tea": "tea.png",
+    "afternoon": "https://images.unsplash.com/photo-1502444330042-d1a1ddf9bb5b?q=80&w=2673&auto=format&fit=crop", // minimal gray architecture
+    "evening": "evening.png",
+    "night": "night.png",
     "1940s": "https://images.unsplash.com/photo-1543783318-72e70c67531e?q=80&w=2670&auto=format&fit=crop", // Elegant night mood
     "1950s": "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?q=80&w=2670&auto=format&fit=crop", // Classic Jazz vibe
     "1990s": "https://images.unsplash.com/photo-1544161515-4af6ce1dbbe3?q=80&w=2673&auto=format&fit=crop", // Cozy lofi mood
     "1940-2026": "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=2670&auto=format&fit=crop" // Modern Jazz setup
 };
 
+// MOOD TEXTS
+const moodTexts = {
+    "morning": { title: "Good Morning", subtitle: "Enjoy your morning with soft jazz" },
+    "morning-coffee": { title: "Coffee Time Jazz", subtitle: "Rich blends and smooth tunes" },
+    "morning-tea": { title: "Tea Jazz", subtitle: "Delicate sips and mellow vibes" },
+    "afternoon": { title: "Afternoon Focus", subtitle: "Stay focused. Stay calm." },
+    "evening": { title: "Evening Relaxation", subtitle: "Unwind. Let the music carry you." },
+    "night": { title: "Good Night", subtitle: "Good night. Slow down." }
+};
+
 // PLAYLISTS
 const playlists = {
     "morning": ["nv_2rz5BFDA", "pHwRrE14cjE", "S-dRotOi01Q", "4OItGUhpNWM", "iWuNnm-VUzY", "gxwv9CbkeCY", "u5UEJvX46rE", "zl1U9_jciOk", "0oHboHuI5ME", "Dx5qFachd3A"],
+    "morning-coffee": ["PoPL7BExSQU", "qQNV6WNQXDc", "3zrSoHgAAWo", "9YH175fH2jo", "CX-Y-6kw8HU"],
+    "morning-tea": ["cb2w2m1JmCY", "TtYFnN_G0GE", "x8zBwbB6A3Q", "nv_2rz5BFDA", "S-dRotOi01Q"],
+    "afternoon": ["CX-Y-6kw8HU", "PoPL7BExSQU", "lP26UCnoH9s", "3zrSoHgAAWo", "x8zBwbB6A3Q"],
     "evening": ["lP26UCnoH9s", "Nv2GgV34qIg", "CX-Y-6kw8HU", "9YH175fH2jo", "qQNV6WNQXDc"],
     "night": ["cb2w2m1JmCY", "TtYFnN_G0GE", "qQNV6WNQXDc", "9YH175fH2jo", "CX-Y-6kw8HU"],
     "1940s": ["cb2w2m1JmCY", "TtYFnN_G0GE", "qQNV6WNQXDc", "9YH175fH2jo", "CX-Y-6kw8HU"],
@@ -96,9 +114,48 @@ function setPlaylist(category, displayTitle) {
     currentCategory = category;
     trackTitleDisplay.innerHTML = `Loading ${displayTitle}...`;
 
+    // Manage Theme Category
+    let themeCategory = category;
+    if (category.startsWith('morning')) {
+        themeCategory = 'morning';
+    }
+
+    // Manage Sub-Navigation Visibility
+    const subNavMorning = document.getElementById('sub-nav-morning');
+    if (subNavMorning) {
+        if (themeCategory === 'morning') {
+            subNavMorning.classList.add('visible');
+        } else {
+            subNavMorning.classList.remove('visible');
+        }
+    }
+
     // Change Background
-    if (backgrounds[category]) {
-        mainBackground.style.backgroundImage = `url('${backgrounds[category]}')`;
+    const bgCategory = backgrounds[category] ? category : themeCategory;
+    if (backgrounds[bgCategory]) {
+        mainBackground.style.backgroundImage = `url('${backgrounds[bgCategory]}')`;
+    }
+
+    // Set Theme Class
+    document.body.classList.remove('theme-morning', 'theme-afternoon', 'theme-evening', 'theme-night');
+    if (["morning", "afternoon", "evening", "night"].includes(themeCategory)) {
+        document.body.classList.add(`theme-${themeCategory}`);
+    }
+
+    // Set Mood Text Overlay
+    if (moodTexts[category]) {
+        moodTitle.innerText = moodTexts[category].title;
+        moodSubtitle.innerText = moodTexts[category].subtitle;
+        moodTextContainer.classList.add('visible');
+        
+        // Auto-hide text after 5 seconds
+        setTimeout(() => {
+            if(currentCategory === category) {
+                moodTextContainer.classList.remove('visible');
+            }
+        }, 5000);
+    } else {
+        moodTextContainer.classList.remove('visible');
     }
 
     // Load the playlist
@@ -108,7 +165,12 @@ function setPlaylist(category, displayTitle) {
     navButtons.forEach(btn => {
         if (btn.getAttribute('data-category') === category) {
             btn.classList.add('active');
-        } else {
+        } else if (btn.getAttribute('data-category') === themeCategory && category !== themeCategory) {
+            // Keep main Morning button active if a morning sub-category is selected
+            btn.classList.add('active');
+        } else if (btn.classList.contains('sub-nav-btn') && btn.getAttribute('data-category') !== category) {
+            btn.classList.remove('active');
+        } else if (!btn.classList.contains('sub-nav-btn')) {
             btn.classList.remove('active');
         }
     });
