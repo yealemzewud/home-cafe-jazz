@@ -4,6 +4,32 @@
     --accent: #f0c27b;
     --font-serif: "Playfair Display", serif;
     --font-sans: "Inter", sans-serif;
+    --vignette-bottom: rgba(0,0,0,0.4);
+    --vignette-top: rgba(0,0,0,0.3);
+}
+
+body.theme-morning {
+    --accent: #f0c27b;
+    --vignette-bottom: rgba(0,0,0,0.2);
+    --vignette-top: rgba(255,255,255,0.1);
+}
+
+body.theme-afternoon {
+    --accent: #c4b5a5;
+    --vignette-bottom: rgba(0,0,0,0.1);
+    --vignette-top: rgba(0,0,0,0.1);
+}
+
+body.theme-evening {
+    --accent: #ff8c42;
+    --vignette-bottom: rgba(0,0,0,0.6);
+    --vignette-top: rgba(0,0,0,0.4);
+}
+
+body.theme-night {
+    --accent: #7b9acc;
+    --vignette-bottom: rgba(0,0,0,0.8);
+    --vignette-top: rgba(0,0,0,0.6);
 }
 
 * {
@@ -50,12 +76,79 @@ body, html {
     width: 100%;
     height: 100%;
     background: linear-gradient(to bottom, 
-        rgba(0,0,0,0.3) 0%, 
+        var(--vignette-top) 0%, 
         transparent 30%, 
         transparent 70%, 
-        rgba(0,0,0,0.4) 100%);
+        var(--vignette-bottom) 100%);
     box-shadow: inset 0 0 150px rgba(0,0,0,0.5);
     z-index: -1;
+    transition: background 2s ease-in-out;
+}
+
+/* Center Mood Text */
+.mood-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+    pointer-events: none;
+    text-shadow: 2px 2px 20px rgba(0,0,0,0.8);
+}
+
+.mood-text.visible {
+    opacity: 1;
+}
+
+#mood-title {
+    font-size: 3.5rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--accent);
+    transition: color 2s ease-in-out;
+}
+
+#mood-subtitle {
+    font-family: var(--font-sans);
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: var(--text-color);
+}
+
+/* Night Stars Animation */
+#stars-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: twinkle 5s infinite alternate;
+}
+
+body.theme-night #stars-container {
+    opacity: 0.6;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.6; }
 }
 
 /* Header UI */
@@ -142,11 +235,38 @@ body.is-playing .audio-wave span {
 }
 
 /* Bottom Navigation */
+#bottom-controls {
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+.sub-nav {
+    display: none;
+    padding: 0 4rem;
+    gap: 1.5rem;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.sub-nav.visible {
+    display: flex;
+    opacity: 1;
+}
+
+.sub-nav-label {
+    color: var(--text-dim);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
 #playlist-nav {
-    padding: 3rem 4rem;
+    padding: 1.5rem 4rem 3rem 4rem;
     display: flex;
     gap: 2rem;
-    z-index: 10;
 }
 
 .nav-btn {
